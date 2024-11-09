@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String           @id @default(uuid())
+  name          String
+  email         String           @unique
+  mobileNo      String?   
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  preferences   UserPreference[] // Relation to preferences
+  notifications Notification[] // Relation to notifications
+}
+
+// Model to store user preferences for different notification channels
+model UserPreference {
+  id      String @id @default(uuid())
+  channel String // Example: 'email', 'sms', 'push'
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+}
+
+// Model to store notification details, including scheduling and delivery channel
+model Notification {
+  id             String             @id @default(uuid())
+  userId         String
+  user           User               @relation(fields: [userId], references: [id])
+  templateId     String? 
+  template       Template?          @relation(fields: [templateId], references: [id])
+  channel        String // Example: 'email', 'sms', 'push'
+  content        String // Message content
+  scheduledAt    DateTime? // Null if sent immediately, set if scheduled
+  status         DeliveryStatusEnum @default(PENDING)
+  createdAt      DateTime           @default(now())
+  deliveryStatus DeliveryStatus[]
+}
+
+// Model to store predefined message templates
+model Template {
+  id            String         @id @default(uuid())
+  name          String         @unique
+  content       String // Template content with placeholders, e.g., "Hello {name}"
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  notifications Notification[]
+}
+
+// Model to track the status of each notification
+model DeliveryStatus {
+  id             String             @id @default(uuid())
+  notificationId String 
+  notification   Notification       @relation(fields: [notificationId], references: [id])
+  status         DeliveryStatusEnum
+  errorMessage   String? // Optional error message if failed
+  timestamp      DateTime           @default(now())
+}
+
+// Enum for delivery status
+enum DeliveryStatusEnum {
+  SENT
+  FAILED
+  PENDING
+}
