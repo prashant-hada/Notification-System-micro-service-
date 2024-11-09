@@ -8,6 +8,7 @@ import sendEmail from "./utils/emailModule.js";
 const app = express();
 const PORT = process.env.PORT || 3001
 
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
@@ -27,7 +28,7 @@ app.get("/email-send",async(req,res,next)=>{
     } catch (error) {
        return res.status(400).json({message:"some error occured", error}) 
     }
-})
+
 
 app.listen(PORT,()=>{
     console.log(`Service is running on PORT ${PORT}`)
