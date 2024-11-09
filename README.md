@@ -15,7 +15,7 @@ The _Notification System_ is designed as a microservice API that handles the dis
 ## ER Diagram Overview:
 
 The ER (Entity-Relationship) diagram for the _Notification System_ includes the following key entities and relationships:
-![ER- Diagram Image](https://raw.githubusercontent.com/prashant-hada/Notification-System-micro-service-/a928bd6b01d01530a4581ceede1d1cf35696ad51/ER-Diagram/ER-Diagram.svg?token=A7LFLGDSQ4WFLAO2N47UFM3HF6I3Q)
+![ER- Diagram Image](https://raw.githubusercontent.com/prashant-hada/Notification-System-micro-service-/22da1cfbcb168c9ccc84f03180cbc99f97f3dd2c/ER-Diagram/ER-Diagram.svg)
 
 -   **User**: Central entity representing users who receive notifications.
 -   **UserPreference**: Linked to `User`, representing preferences for receiving notifications through various channels.
