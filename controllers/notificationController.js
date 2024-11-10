@@ -2,6 +2,7 @@ import prisma from "../DB_config/config.js";
 import replaceTemplateVariables  from "../utils/modifyTemplate.js";
 import sendEmail from "../utils/emailModule.js"
 import update_Notification_And_DeliveryStatus from "../utils/updateStatus.js";
+import {notificationQueue} from "../utils/index.js"
 
 export const sendNotification = async(req,res,next)=>{
     try {
@@ -73,4 +74,64 @@ export const sendNotification = async(req,res,next)=>{
     }
 }
 
+export const scheduleNotification = async(req,res,next)=>{
+    try 
+    {
+        const {channel, templateId, variableData, scheduledAt} = req.body;
+        const {userId} = req.params ;
+        const scheduledTime = new Date(scheduledAt);
 
+        const userPreferences = await prisma.userPreference.findMany({
+            where: { userId },
+          });
+
+        const preferredChannels = userPreferences.map(pref => pref.channel);
+    if (!preferredChannels.includes(channel)) {
+      return res.status(400).json({ message: 'User has opted out of this channel, try with any other channel' });
+    }
+
+    let templateData = await prisma.template.findUnique({
+        where:{
+            id:templateId
+        }
+    })
+
+    if(!templateData) return res.status(404).json({message:`Template with template id ${templateId} NOT FOUND`})
+
+    const updatedContent = replaceTemplateVariables(templateData.content, variableData);
+    templateData.content = updatedContent || templateData.content
+
+    const notification = await prisma.notification.create({
+        data: {
+          userId,
+          templateId,
+          channel,
+          scheduledAt,
+          content: templateData.content,
+          status: 'PENDING',
+          deliveryStatuses: { 
+            create: {
+              status: 'PENDING',
+              timestamp: new Date(),
+            },
+          },
+        },
+        include: {
+          deliveryStatuses: true, 
+        },
+      });
+
+      await notificationQueue.add(
+        'sendNotification',
+        { notificationId: notification?.id, deliveryStatusId: notification?.deliveryStatus?.id }, 
+        { delay: scheduledTime - Date.now() } 
+      );
+
+      return res.status(201).json({ message: "Notification scheduled", notification });
+
+    }   
+    catch (error) {
+        return res.status(400).json({error:"something went wrong", message:error.message});
+
+    }
+}
