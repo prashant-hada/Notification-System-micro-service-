@@ -1,8 +1,9 @@
 import { Router } from "express";
-import {sendNotification} from "../controllers/notificationController.js"
+import {sendNotification, scheduleNotification} from "../controllers/notificationController.js"
 
 const router = Router();
 
 router.post("/send", sendNotification);
+router.post("/schedule", scheduleNotification);
 
 export default router
