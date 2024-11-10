@@ -16,7 +16,7 @@ async function sendEmail(to, subject, message) {
       text: message,
     });
   
-    console.log('Email sent: %s', info.messageId);
+    // console.log('Email sent: %s', info.messageId);
     return info;
 }
 
