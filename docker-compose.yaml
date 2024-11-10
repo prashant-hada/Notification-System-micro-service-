@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:latest
+    container_name: my_postgres_container
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: prashant
+      POSTGRES_DB: notificationdb
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+
+  app:
+    build: .
+    container_name: notification-service
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DATABASE_URL: "postgresql://your_username:your_password@postgres:5432/your_database_name"
+      REDIS_URL: "redis://redis:6379" 
+      REDIS_HOST : "redis"
+      REDIS_PORT : 6379
+    ports:
+      - "3000:3000" 
+    networks:
+      - backend
+
+  redis:
+    image: redis:alpine
+    container_name: redis_container
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
