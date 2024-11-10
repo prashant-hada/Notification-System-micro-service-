@@ -2,8 +2,8 @@ import {Queue} from "bullmq";
 import Redis from "ioredis"
 
 const redisConnection = new Redis({
-  host: 'localhost', // Replace with your Redis host if needed
-  port: 6379,        // Replace with your Redis port if needed
+  host: procces.env.REDIS_HOST || 'localhost', 
+  port: process.env.REDIS_PORT || 6379,       
 });
 
 const notificationQueue = new Queue('notifications', {
