@@ -1,4 +1,4 @@
-import prisma from "../DB_config/config";
+import prisma from "../DB_config/config.js";
 
 export const createTemplate = async(req , res , next) =>{
     try {
