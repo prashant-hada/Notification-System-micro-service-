@@ -12,6 +12,46 @@ The _Notification System_ is designed as a microservice API that handles the dis
 -   **Scheduling**: The system supports both immediate and scheduled notification delivery.
 -   **Retry Logic**: In case of failed delivery, the system implements retry logic to attempt resending.
 -   **Security and Compliance**: Data such as `email` and `mobileNo` are stored securely, and user preferences ensure compliance with privacy standards.
+
+## Setting Up the Project
+
+### Prerequisites
+Ensure you have the following installed on your system:
+-   **Node.js (v14 or higher)**
+-   **npm (Node Package Manager)**
+-   **Docker** (optional, for Docker-based setup)
+
+### Environment Variables
+
+Create a `.env` file in the project root directory and define the following variables:
+
+    PORT=3000
+    SMS_API_KEY= sms_api_key
+    DATABASE_URL = database_url
+    PUSH_NOTIFICATION_SERVICE_KEY=your_push_service_key
+
+
+### Simple Setup
+
+1.  **Clone the repository:**
+    `git clone https://github.com/yourusername/notification-system-microservice.git
+    cd notification-system-microservice` 
+    
+3.  **Install dependencies:**
+    `npm install` 
+    
+4.  **Run the project:**
+    `npm start` 
+    
+
+### Docker Setup
+
+1.  **Build and run using Docker-Compose :**
+You can use `docker-compose` for a simplified multi-container setup:
+`docker-compose up --build` 
+
+This command reads `docker-compose.yaml` and builds/runs the containers as per the configuration.
+
 ## ER Diagram Overview:
 
 The ER (Entity-Relationship) diagram for the _Notification System_ includes the following key entities and relationships:
@@ -86,3 +126,110 @@ Below is a description of the key data models:
 #### 6. **Enums Used**
 
 -   **DeliveryStatusEnum**: Enumerates possible delivery states: `SENT`, `FAILED`, `PENDING`.
+
+##  Core Functionalities
+
+### Sending Notifications
+
+The microservice allows you to send notifications through different channels such as email, SMS, and push notifications. Each channel uses specific APIs configured via environment variables.
+
+**Endpoint**: `POST /notification/send`  
+**Payload Example**:
+
+    {"userId": "12345",
+	  "channel": "email",
+	  "templateId": "67890",
+	  "variableData": {
+				"name": "John Doe",
+				"appointmentDate": "2024-12-01"
+				}
+			   }
+
+**Description**: This endpoint triggers a notification to be sent using the specified channel and template.
+
+### Scheduling Notifications
+
+The microservice supports scheduling notifications for future delivery. This is useful for reminders or timed alerts.
+
+**Endpoint**: `POST /notification/send`  
+**Payload Example**:
+
+
+
+    {"userId": "12345",
+	  "channel": "email",
+	  "templateId": "6785484vggvhchj448590",
+	  "scheduledAt": "2024-12-01T10:00:00Z"
+	  "variableData": {
+				"name": "John Doe",
+				"otp":"457851"
+				}
+			   }
+
+**Description**: This endpoint schedules a notification to be sent at the specified date and time.
+
+### Managing Templates
+
+Users can create, update, or delete templates for notifications.
+
+**Endpoints**:
+-   `GET /template/get-one/:templateId` – Fetches a single Template data based on templateId.
+- -   `GET /template/get-all` – Fetches a all Template data in the form of a list.
+-   `POST /template/create` – Create a new template
+-   `PATCH /template/update/:templateId` – Update an existing template
+-   `DELETE /template/delete/:templateId` – Delete a template
+
+**Payload Example for Creating a Template**:
+
+    {
+	    name:"Title of template",
+	    content: "Content of template with {variables} in curly braces"
+    }
+
+### Managing User Preferences
+
+Users can manage their preferences for notification channels (e.g., opting out of SMS).
+
+**Endpoint**: `PATCH /preference/update/:userId`  
+**Payload Example**:
+
+    {
+	    userId: <STRING>,
+	    newPreference : <ARRAY of Strings>
+    }
+
+**Description**: This endpoint updates a user's preferences for receiving notifications.
+
+### Routes To create Dummy Data (Additional)
+
+You can create some Dummy data for testing with the following 2 Routes.
+**1. Dummy Templates **
+**Endpoint**: `post /create-data/dummy-templates`  
+**Payload Example**: No payload require. 
+
+**Description**: This endpoint will create 5 hardcoded templated with variable in the Database but trying this API more then once call result in error due to attempt of duplicity in table of DB.
+
+**2. Create User Route **
+**Endpoint**: `post /create-data/user`  
+**Payload Example**: 
+
+    {
+	    name: <STRING>,
+	    email : <STRING>,
+	    mobileNo : <STRING>
+    }
+
+**Description**: This endpoint a new user in the Database's user table.
+
+### Error Handling
+
+The system implements robust error handling to ensure meaningful feedback is provided. Common error responses include:
+
+-   **400 Bad Request**: Invalid payload or missing required fields.
+-   **404 Not Found**: Resource not found (e.g., non-existent template).
+-   **500 Internal Server Error**: Unexpected server issues.
+
+
+## Conclusion
+
+The Notification System microservice is a powerful and flexible solution for managing multi-channel notifications. With features like dynamic templating, scheduling, user preference management, and robust retry logic, this system is designed to enhance user engagement and communication. Following the setup and utilizing the provided API endpoints, you can integrate seamless notification capabilities into your application, ensuring timely and effective delivery across various channels.
